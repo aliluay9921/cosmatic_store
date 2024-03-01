@@ -38,10 +38,6 @@ class ProductController extends Controller
             if ($filter->name == "offer" && $filter->value == "true") {
 
                 $products->where('offer', '>', 0);
-            } elseif ($filter->name == "category") {
-                $products->whereHas('category', function ($q) use ($filter) {
-                    $q->where('name', $filter->value);
-                });
             } elseif ($filter->name == "brand") {
                 $products->whereHas('brand', function ($q) use ($filter) {
                     $q->where('name', $filter->value);
@@ -54,6 +50,9 @@ class ProductController extends Controller
         if (isset($_GET['query'])) {
             $products->where(function ($q) {
                 $columns = Schema::getColumnListing('products');
+                $q->whereHas('brand', function ($q) {
+                    $q->where('name', 'LIKE', '%' . $_GET['query'] . '%');
+                });
                 foreach ($columns as $column) {
                     $q->orWhere($column, 'LIKE', '%' . $_GET['query'] . '%');
                 }
@@ -155,9 +154,7 @@ class ProductController extends Controller
             "single_price" => "required|numeric",
             "jomla_price" => "required|numeric",
             "brand_id" => "required|exists:brands,id",
-            "images" => "required",
             "offer" => "numeric|max:100",
-            "offer_expired" => "required_with:offer|date|after_or_equal:today",
             "stock" => "required",
         ], [
             "id.required" => "يجب إدخال رقم المنتج",
@@ -168,9 +165,7 @@ class ProductController extends Controller
             "single_price.required" => "يجب إدخال سعر المنتج للمستخدم العادي",
             "jomla_price.required" => "يجب إدخال سعر المنتج للجملة",
             "brand_id.required" => "يجب إدخال صنف المنتج",
-            "images.required" => "يجب إدخال صور المنتج",
             "offer.max" => "يجب ألا يتجاوز العرض 100",
-            "offer_expired.required_with" => "يجب إدخال تاريخ انتهاء العرض",
             "stock.required" => "يجب ادخال الكمية المتوفرة"
         ]);
         if ($validator->fails()) {
@@ -192,7 +187,7 @@ class ProductController extends Controller
             "stock" => $request["stock"],
         ];
 
-        if (array_key_exists("offer", $request) && $request["offer"] == null) {
+        if (array_key_exists("offer", $request) && $request["offer"] == null  || $product->offer > 0) {
             $data["offer_expired"] = null;
         }
         if (array_key_exists("images", $request)) {
