@@ -1,13 +1,16 @@
 <?php
 
+use App\Models\Setting;
+use App\Models\Governante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SettingController;
-use App\Models\Setting;
+use App\Http\Controllers\GovernanteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,19 +39,31 @@ route::get("get_jomla_code", [SettingController::class, "getJomlaCode"]);
 
 
 Route::middleware(['auth:api'])->group(function () {
+
+    route::post("add_order", [OrderController::class, "addOrder"]);
+    route::get("get_orders", [OrderController::class, "getOrders"]);
+    route::get("get_governantes", [GovernanteController::class, "getGovernantes"]);
+    route::get("get_auth_order", [OrderController::class, "getAuthOrder"]);
+
+
     Route::middleware('admin')->group(function () {
 
+
+        route::get("get_all_orders", [OrderController::class, "getAllOrders"]);
+        // route::get("get_all_users", [AuthController::class, "getAllUsers"]);
 
         route::post("add_product", [ProductController::class, "addProduct"]);
         route::post("add_brand", [BrandController::class, "addBrand"]);
         route::post("add_ads", [AdsController::class, "addAds"]);
         route::post("add_code_jomla", [SettingController::class, "addCodeJomla"]);
+        route::post("add_governante", [GovernanteController::class, "addGovernante"]);
 
 
         route::put("update_brand", [BrandController::class, "updateBrand"]);
         route::put("update_product", [ProductController::class, "updateProduct"]);
         route::put("update_ads", [AdsController::class, "updateAds"]);
         route::put("update_jomla_code", [SettingController::class, "updateJomlaCode"]);
+        route::put("update_governante", [GovernanteController::class, "updateGovernante"]);
 
 
         route::delete("delete_brand", [BrandController::class, "deleteBrand"]);
