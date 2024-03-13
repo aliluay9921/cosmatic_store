@@ -21,6 +21,7 @@ return new class extends Migration
             $table->double("total_cost");
             $table->integer("order_type"); // 0 = zain cash, 1 = on delivered
             $table->integer("status")->default(0); // 0 = pending, 1 = preperd, 2 = delivered , 3 =  rejected 
+            $table->uuid("governante_id");
             $table->softDeletes();
             $table->timestamps();
         });

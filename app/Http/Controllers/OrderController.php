@@ -81,8 +81,6 @@ class OrderController extends Controller
         return $this->send_response(200, 'تم جلب الطلبات بنجاح ', [], $res["model"], null, $res["count"]);
     }
 
-
-
     public function addOrder(Request $request)
     {
         $request = $request->json()->all();
@@ -113,6 +111,7 @@ class OrderController extends Controller
             "address" => $request["address"],
             "phone_number" => $request["phone_number"] ?? auth()->user()->phone_number,
             "order_type" => $request["order_type"],
+            "governante_id" => $request["governante_id"]
         ];
 
         foreach ($request["products"] as $__product) {
@@ -147,5 +146,42 @@ class OrderController extends Controller
             $order->products()->attach($__product["id"], ["offer" => $current_product->offer, "quantity" => $__product["quantity"], "price" => auth()->user()->user_type == 1 ? $current_product->single_price : $current_product->jomla_price]);
         }
         return $this->send_response(200, 'تم اضافة الطلب بنجاح', [], Order::with("products", "user")->find($order->id));
+    }
+
+    public function changeStatusOrder(Request $request)
+    {
+        $request = $request->json()->all();
+        $validator = Validator::make(
+            $request,
+            [
+                'order_id' => 'required|exists:orders,id',
+                'status' => 'required',
+            ],
+            [
+                'order_id.required' => 'يجب ادخال رقم الطلب',
+                'order_id.exists' => 'رقم الطلب غير موجود',
+                'status.required' => 'يجب ادخال حالة الطلب',
+            ]
+        );
+        if ($validator->fails()) {
+            return $this->send_response(400, 'خطأ في البيانات المرسلة', $validator->errors());
+        }
+        $order = Order::find($request["order_id"]);
+        if ($order->status == 0) {
+            if ($order->user_id === auth()->user()->id) {
+                $order = Order::where("id", $request["order_id"])->update(["status" => $request["status"]]); // to reject order by  user order
+            } else if (auth()->user()->user_type == 0) {
+                $order = Order::where("id", $request["order_id"])->update(["status" => $request["status"]]); // to reject or prepared order by admin 
+            } else {
+                return $this->send_response(400, 'لا يمكنك تغيير حالة طلب غير طلبك', [], null, null, null);
+            }
+        } else if ($order->status == 1) {
+            if (auth()->user()->user_type == 0) {
+                $order = Order::where("id", $request["order_id"])->update(["status" => $request["status"]]); // to confirm delevird order by admin
+            } else {
+                return $this->send_response(400, 'لا يمكنك تغيير حالة طلب آخر', [], null, null, null);
+            }
+        }
+        return $this->send_response(200, 'تم تغيير حالة الطلب بنجاح', [], Order::with("products", "user")->find($request["order_id"]));
     }
 }

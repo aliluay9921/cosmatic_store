@@ -16,12 +16,13 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // \App\Models\User::factory(10)->create();
-        User::create([
-            "name" => "admin",
-            "phone_number" => "07709999947",
-            "password" => bcrypt("11111111"),
-            "user_type" => 0
+        // User::create([
+        //     "name" => "admin",
+        //     "phone_number" => "07709999947",
+        //     "password" => bcrypt("11111111"),
+        //     "user_type" => 0
+        // ]);
 
-        ]);
+        $this->call(GovernanteSeeders::class);
     }
 }

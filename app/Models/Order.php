@@ -14,6 +14,7 @@ class Order extends Model
     protected $guarded = [];
 
     protected $dates = ['deleted_at'];
+    protected $with = ["governante"];
 
     public function user()
     {
@@ -23,5 +24,10 @@ class Order extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'order_products', 'order_id', 'product_id')->withPivot("offer", "quantity", "price");
+    }
+
+    public function governante()
+    {
+        return $this->belongsTo(Governante::class, 'governante_id');
     }
 }
