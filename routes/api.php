@@ -38,6 +38,7 @@ route::get("get_products", [ProductController::class, "getProducts"]);
 route::get("get_ads", [AdsController::class, "getAds"]);
 route::get("get_jomla_code", [SettingController::class, "getJomlaCode"]);
 route::get("get_routens", [RoutenController::class, "getRouten"]);
+Route::get("get_statistics", [AuthController::class, "getStatistics"]);
 
 
 Route::middleware(['auth:api'])->group(function () {

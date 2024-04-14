@@ -28,8 +28,14 @@ class SettingController extends Controller
         if ($validator->fails()) {
             return $this->send_response(400, "البيانات المدخلة غير صحيحة", $validator->errors());
         }
-        $setting = Setting::create($request);
-        return $this->send_response(200, "تم اضافة الكود بنجاح", [], $setting);
+        $get_data = Setting::first();
+        if ($get_data) {
+            $get_data->update($request);
+            return $this->send_response(200, "تم تحديث الكود بنجاح", [], $get_data);
+        } else {
+            $setting = Setting::create($request);
+            return $this->send_response(200, "تم اضافة الكود بنجاح", [], $setting);
+        }
     }
 
     public function updateJomlaCode(Request $request)
