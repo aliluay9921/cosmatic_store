@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ads;
+use App\Models\Ads;
 use App\Traits\Pagination;
 use App\Traits\UploadImage;
 use App\Traits\SendResponse;
@@ -17,10 +17,10 @@ class adsController extends Controller
     public function getAds()
     {
         if (isset($_GET["ads_id"])) {
-            $ads = ads::find($_GET["ads_id"]);
+            $ads = Ads::find($_GET["ads_id"]);
             return $this->send_response(200, "تم جلب منتجات الأعلان", [], $ads->products);
         }
-        $ads = ads::with("products");
+        $ads = Ads::with("products");
         if (isset($_GET['query'])) {
             $ads->where(function ($q) {
                 $columns = Schema::getColumnListing('ads');
@@ -80,7 +80,7 @@ class adsController extends Controller
             'url' => $request['url'] ?? null,
             'expaired' => $request['expaired'],
         ];
-        $ads = ads::create($data);
+        $ads = Ads::create($data);
         if (array_key_exists('products_id', $request)) {
 
             foreach ($request['products_id'] as $product_id) {
@@ -88,7 +88,7 @@ class adsController extends Controller
                 error_log("" . $product_id);
             }
         }
-        return $this->send_response(200, "تم اضافة الإعلان بنجاح", [], ads::find($ads->id));
+        return $this->send_response(200, "تم اضافة الإعلان بنجاح", [], Ads::find($ads->id));
     }
 
     public function updateAds(Request $request)
@@ -118,7 +118,7 @@ class adsController extends Controller
         if ($validator->fails()) {
             return $this->send_response(400, "حصل خطأ في المدخلات", $validator->errors(), []);
         }
-        $ads = ads::find($request['id']);
+        $ads = Ads::find($request['id']);
         $data = [];
         $data = [
             'type' => $request['type'],
@@ -137,7 +137,7 @@ class adsController extends Controller
                 error_log("" . $product_id);
             }
         }
-        return $this->send_response(200, "تم تعديل الإعلان بنجاح", [], ads::with("products")->find($ads->id));
+        return $this->send_response(200, "تم تعديل الإعلان بنجاح", [], Ads::with("products")->find($ads->id));
     }
 
     public function deleteAds(Request $request)
@@ -152,7 +152,7 @@ class adsController extends Controller
         if ($validator->fails()) {
             return $this->send_response(400, "حصل خطأ في المدخلات", $validator->errors(), []);
         }
-        $ads = ads::find($request['id']);
+        $ads = Ads::find($request['id']);
         $ads->products()->detach();
         $ads->delete();
         return $this->send_response(200, "تم حذف الإعلان بنجاح", [], []);

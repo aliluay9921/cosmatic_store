@@ -79,4 +79,21 @@ class RoutenController extends Controller
         }
         return $this->send_response(200, "تم اضافة الروتين بنجاح", [], Routen::find($routen->id));
     }
+
+    public function deleteRouten($id)
+    {
+        $request = request()->json()->all();
+        $validator = Validator::make($request, [
+            'id' => 'required|exists:routens',
+        ], [
+            "id.required" => "يجب إدخال الروتين",
+            "id.exists" => "الروتين غير موجود",
+        ]);
+        if ($validator->fails()) {
+            return $this->send_response(400, "حصل خطأ في المدخلات", $validator->errors(), []);
+        }
+        $routens = Routen::find($request['id']);
+        $routens->delete();
+        return $this->send_response(200, "تم حذف الروتين بنجاح", [], []);
+    }
 }

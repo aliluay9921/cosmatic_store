@@ -74,5 +74,6 @@ Route::middleware(['auth:api'])->group(function () {
         route::delete("delete_brand", [BrandController::class, "deleteBrand"]);
         route::delete("delete_product", [ProductController::class, "deleteProduct"]);
         route::delete("delete_ads", [AdsController::class, "deleteAds"]);
+        route::delete("delete_routen", [RoutenController::class, "deleteRouten"]);
     });
 });
